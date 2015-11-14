@@ -1,5 +1,5 @@
 
-package DateTime::Format::Stardate;
+package DateTime::Format::Stardate:Sidereal;
 use base 'DateTime::Format::Stardate';
 
 use warnings;
@@ -12,37 +12,37 @@ use Carp qw(croak);
 # to gregorian dates
 sub parse_datetime
 {
-	my $self = shift; # Object or classname
-	my $stardate = shift;
+    my $self = shift; # Object or classname
+    my $stardate = shift;
 
-	unless ($stardate =~ m/^\-?\d+(?:\.\d+)$/)
-	{
-		croak "Provided stardate formatted incorrectly";
-	}
-	
-	# How many stardates difference between the epoch
+    unless ($stardate =~ m/^\-?\d+(?:\.\d+)$/)
+    {
+        croak "Provided stardate formatted incorrectly";
+    }
+    
+    # How many stardates difference between the epoch
     # stardate and the provided one
-	my $delta_stardates = ($stardate - $self->epoch_stardate);
-	
+    my $delta_stardates = ($stardate - $self->epoch_stardate);
+    
     # How many years difference  between the epoch 
     # stardate and the provided one
-	my $delta_years = $delta_stardates / $self->stardates_per_year;
-	
+    my $delta_years = $delta_stardates / $self->stardates_per_year;
+    
     # How many days difference  between the epoch
     # stardate and the provided one
-	my $delta_days = $delta_years * $self->days_per_year;
-	
+    my $delta_days = $delta_years * $self->days_per_year;
+    
     # How many seconds difference  between the epoch    
     #  stardate and the provided one
-	my $delta_seconds = $delta_days * 86400;
-	
+    my $delta_seconds = $delta_days * 86400;
+    
     # DateTime::Duration object representing the difference 
     # between the epoch stardate and the provided one
-	my $delta = DateTime::Duration->new( 'seconds' => $delta_seconds, );
-	
+    my $delta = DateTime::Duration->new( 'seconds' => $delta_seconds, );
+    
     # DateTime object representing this stardate
-	my $datetime = $self->epoch_datetime->clone; # Take the epoch stardate
-	
+    my $datetime = $self->epoch_datetime->clone; # Take the epoch stardate
+    
     # And add the delta we calculated and any temporal adjustment
     $datetime->add( $delta - $self->slingshot_effect);
     
@@ -54,33 +54,33 @@ sub parse_datetime
 # solar years calendar entries
 sub format_datetime
 {
-	my $self = shift; # Object or classname
-	my $dt = shift;
+    my $self = shift; # Object or classname
+    my $dt = shift;
     
-	my $isa_check = eval { $dt->isa('DateTime') };
-	if ($@ || not $isa_check)
-	{
-		croak "Provided datetime must be a DateTime object";
-	}
+    my $isa_check = eval { $dt->isa('DateTime') };
+    if ($@ || not $isa_check)
+    {
+        croak "Provided datetime must be a DateTime object";
+    }
     
-	# DateTime::Duration object representing the difference between the epoch
+    # DateTime::Duration object representing the difference between the epoch
     # and provided datetimes
-	my $delta = $dt->subtract_datetime_absolute($self->epoch_datetime)
+    my $delta = $dt->subtract_datetime_absolute($self->epoch_datetime)
         + $self->slingshot_effect;
-	
-    # How many days difference between the epoch datetime and the provided one
-	my $delta_days = $delta->in_units('days');
     
-	# How many years difference between the epoch datetime and the provided one
-	my $delta_years = $delta_days / $self->solar_days_per_year;
+    # How many days difference between the epoch datetime and the provided one
+    my $delta_days = $delta->in_units('days');
+    
+    # How many years difference between the epoch datetime and the provided one
+    my $delta_years = $delta_days / $self->solar_days_per_year;
 
-	# How many stardates difference between the epoch datetime and the provided
+    # How many stardates difference between the epoch datetime and the provided
     # one
-	my $delta_stardates = $delta_years * $self->stardates_per_year;
-	
+    my $delta_stardates = $delta_years * $self->stardates_per_year;
+    
     # The end result stardate
-	my $stardate = $self->epoch_stardate + $delta_stardates;
-	
+    my $stardate = $self->epoch_stardate + $delta_stardates;
+    
     return sprintf '%.'.$self->precision.'f', $stardate;
 }
 

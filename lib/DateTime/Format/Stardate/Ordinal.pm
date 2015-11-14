@@ -10,11 +10,11 @@ use DateTime::Duration;
 # Stardate -> DateTime
 sub parse_datetime
 {
-	my $source = shift;
-	my $class = ref($source) || $source;
+    my $source = shift;
+    my $class = ref($source) || $source;
 
-	my $stardate = shift;
-	unless ($stardate =~ m/
+    my $stardate = shift;
+    unless ($stardate =~ m/
             ^
             (\-?\d+) # Year
             (\.\d+)? # Ordinal day
@@ -27,12 +27,12 @@ sub parse_datetime
         
         /x
     )
-	{
-		croak "Provided stardate was formatted incorrectly"
-	}
+    {
+        croak "Provided stardate was formatted incorrectly"
+    }
     
-	my $dt = DateTime->new( 'year' => $1, 'month' => 1, 'day' => 1 );
-	$dt->add(
+    my $dt = DateTime->new( 'year' => $1, 'month' => 1, 'day' => 1 );
+    $dt->add(
         DateTime::Duration->new(
             'days'  => ( ($2 - 1) || 0 ),
             'hours' => ($3 || 0),
@@ -43,32 +43,32 @@ sub parse_datetime
 
     $dt->subtract_duration( $self->slingshot_effect );
     
-	return $dt;
+    return $dt;
 }
 
 # DateTime -> Stardate
 sub format_datetime
 {
-	my $source = shift;
-	my $class = ref($source) || $source;
+    my $source = shift;
+    my $class = ref($source) || $source;
     
-	my $dt = shift;
-	my $isa_check = eval { $dt->isa('DateTime') };
-	if ($@ || not $isa_check)
-	{
-		croak "Provided datetime must be a DateTime object";
-	}
+    my $dt = shift;
+    my $isa_check = eval { $dt->isa('DateTime') };
+    if ($@ || not $isa_check)
+    {
+        croak "Provided datetime must be a DateTime object";
+    }
 
     my $adj_dt = $dt->clone;
     $adj_dt->add_duration( $self->slingshot_effect );
-	
-	my $year_dt = DateTime->new(
+    
+    my $year_dt = DateTime->new(
         'year'  => $dt->year,
         'month' => 1,
         'day'   => 1,
     );
     
-	my $ord_day = int(
+    my $ord_day = int(
         $adj_dt->subtract_datetime_absolute( $year_dt )->in_units('days')
     );
 
@@ -95,7 +95,7 @@ sub format_datetime
         $out =~ s/\:\d+$//;
         $out .= sprintf '%.'.($self->precision-3).'f', $dt->fractional_second;
     }
-	return $out;
+    return $out;
 }
 
 sub check {
